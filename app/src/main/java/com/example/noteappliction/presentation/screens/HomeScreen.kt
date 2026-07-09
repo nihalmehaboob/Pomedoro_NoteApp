@@ -63,10 +63,7 @@ fun HomeScreen(){
                 )
             }
         ) { innerPadding ->
-            Text(
-                text = "Home Screen",
-                modifier = Modifier.padding(innerPadding)
-            )
+            NoteEditorScreen({}, modifier = Modifier.padding(innerPadding))
         }
     }
 }
