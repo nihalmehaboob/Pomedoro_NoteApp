@@ -17,6 +17,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.rememberNavController
 import com.example.noteappliction.R
 import com.example.noteappliction.domain.entities.Note
 import kotlinx.coroutines.launch
@@ -63,7 +64,9 @@ fun HomeScreen(){
                 )
             }
         ) { innerPadding ->
-            NoteEditorScreen({}, modifier = Modifier.padding(innerPadding))
+            val navController = rememberNavController()
+            LibraryCommonScreen(navController,modifier = Modifier.padding(innerPadding))
+
         }
     }
 }
