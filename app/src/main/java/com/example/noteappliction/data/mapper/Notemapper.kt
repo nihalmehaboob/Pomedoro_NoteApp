@@ -34,4 +34,17 @@ object NoteMapper {
 
     }
 
+    fun domainToEntity(
+        note: Note
+    ): NoteEntity {
+        return NoteEntity(
+            note.id,
+            note.title,
+            note.content,
+            note.author,
+            note.topic
+        )
+    }
+    }
+
 }
