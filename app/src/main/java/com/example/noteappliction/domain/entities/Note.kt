@@ -1,10 +1,9 @@
 package com.example.noteappliction.domain.entities
 
-import java.util.UUID
-
 data class Note(
-    val id: UUID = UUID.randomUUID(),
+    val id: Int,
     val title: String,
-    val description: String,
-    val createdAt: Long = System.currentTimeMillis()
+    val content: String,
+    val author: String,
+    val topic: String
 )
