@@ -1,7 +1,7 @@
 package com.example.noteappliction.data.database
 
-import androidx.room3.Database
-import androidx.room3.RoomDatabase
+import androidx.room.Database
+import androidx.room.RoomDatabase
 import com.example.noteappliction.data.local.NoteDao
 import com.example.noteappliction.data.local.NoteEntity
 
