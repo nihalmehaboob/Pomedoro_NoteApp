@@ -30,10 +30,13 @@ fun HomeScreen(){
 
     val notes = remember {
         listOf(
-            Note( title = "Note 1", description = "First note"),
+            Note(id = 1, title = "Note 1", content = "First note content", author = "Author 1", topic = "Topic 1"),
             Note(
+                id = 2,
                 title = "Note 2",
-                description = "Second note",
+                content = "Second note content",
+                author = "Author 2",
+                topic = "Topic 2"
             )
         )
     }
