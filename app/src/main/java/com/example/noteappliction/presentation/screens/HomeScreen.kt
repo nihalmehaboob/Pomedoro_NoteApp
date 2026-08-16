@@ -12,39 +12,45 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.noteappliction.R
-import com.example.noteappliction.domain.entities.Note
+import com.example.noteappliction.presentation.viewModal.NoteViewModal
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(){
+fun HomeScreen(
+    viewModel: NoteViewModal = hiltViewModel()
+){
     val drawblestate= rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope= rememberCoroutineScope()
-
-    val notes = remember {
-        listOf(
-            Note(id = 1, title = "Note 1", content = "First note content", author = "Author 1", topic = "Topic 1"),
-            Note(
-                id = 2,
-                title = "Note 2",
-                content = "Second note content",
-                author = "Author 2",
-                topic = "Topic 2"
-            )
-        )
-    }
+    val notes by viewModel.notes.collectAsState()
+    val navController = rememberNavController()
 
     ModalNavigationDrawer(
         drawerState = drawblestate,
         drawerContent = {
-            SideBar(notes = notes,drawblestate, scope)
+            SideBar(
+                notes = notes,
+                drawerState = drawblestate,
+                scope = scope,
+                onNoteClick = { note ->
+                    navController.navigate("${LibraryRoutes.NOTE_EDITOR}?noteId=${note.id}")
+                },
+                onDeleteNoteClick = { note ->
+                    viewModel.deleteNote(note)
+                },
+                onAddNoteClick = {
+                    navController.navigate(LibraryRoutes.NOTE_EDITOR)
+                }
+            )
         }
     ) {
         Scaffold(
@@ -67,9 +73,7 @@ fun HomeScreen(){
                 )
             }
         ) { innerPadding ->
-            val navController = rememberNavController()
-            LibraryCommonScreen(navController,modifier = Modifier.padding(innerPadding))
-
+            LibraryCommonScreen(navController, modifier = Modifier.padding(innerPadding))
         }
     }
 }

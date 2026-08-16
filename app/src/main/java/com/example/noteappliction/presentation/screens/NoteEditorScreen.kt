@@ -16,52 +16,115 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.noteappliction.domain.entities.Note
+import com.example.noteappliction.presentation.viewModal.NoteViewModal
 import com.mohamedrejeb.richeditor.model.RichTextState
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.mohamedrejeb.richeditor.ui.material3.RichTextEditor
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteEditorScreen(
+    noteId: Int? = null,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
-    // viewModel: NoteEditorViewModel = hiltViewModel()  // add when wiring VM
+    viewModel: NoteViewModal = hiltViewModel()
 ) {
-    // For now, state lives here. Later this moves into the ViewModel
-    // and gets exposed as a StateFlow<NoteEditorUiState>.
     val richTextState = rememberRichTextState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    
+    val notes by viewModel.notes.collectAsState()
+    val existingNote = remember(noteId, notes) { 
+        noteId?.let { id -> notes.find { it.id == id } } 
+    }
 
-    NoteEditorContent(
-        richTextState = richTextState,
-        onNavigateBack = onNavigateBack,
-        modifier = modifier,
-    ) {
-        // Later: viewModel.onSaveClick(richTextState.toHtml())
+    LaunchedEffect(existingNote?.id) {
+        existingNote?.let {
+            richTextState.setHtml(it.content)
+        }
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        modifier = modifier
+    ) { paddingValues ->
+        NoteEditorContent(
+            initialTitle = existingNote?.title ?: "",
+            richTextState = richTextState,
+            onNavigateBack = onNavigateBack,
+            modifier = Modifier.padding(paddingValues),
+        ) { title, content ->
+            if (title.isNotEmpty()) {
+                viewModel.addNote(
+                    Note(
+                        id = existingNote?.id ?: (0..Int.MAX_VALUE).random(),
+                        title = title,
+                        content = content,
+                        author = "nihal",
+                        topic = "topic"
+                    )
+                )
+                onNavigateBack()
+            } else {
+                scope.launch {
+                    snackbarHostState.showSnackbar("Please enter a note name")
+                }
+            }
+        }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun NoteEditorContent(
+    initialTitle: String = "",
     richTextState: RichTextState,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
-    onSaveClick: () -> Unit
+    onSaveClick: (String, String) -> Unit
 ) {
+    var text by remember(initialTitle) { mutableStateOf(initialTitle) }
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp)
     ) {
         FormattingToolbar(richTextState = richTextState)
+
+        Row {
+            TextField(
+                value = text,
+                onValueChange = { text = it },
+                label = { Text("Enter Note name") },
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            IconButton(onClick = { onSaveClick(text, richTextState.toHtml()) }) {
+                Text("save", fontSize= 10.sp)
+            }
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 

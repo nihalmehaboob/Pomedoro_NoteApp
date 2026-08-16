@@ -33,20 +33,15 @@ fun ResourceSelectionScreen(
         ) {
             ResourceBox(
                 label = "Recents",
-                onClick = {//onRecentsClick
-                     }
+                onClick = onRecentsClick
             )
             ResourceBox(
                 label = "New",
-                onClick =  onNewClick
-
-
+                onClick = onNewClick
             )
             ResourceBox(
                 label = "Sticky",
-                onClick ={ //  onStickyClick
-
-                }
+                onClick = onStickyClick
             )
         }
     }
