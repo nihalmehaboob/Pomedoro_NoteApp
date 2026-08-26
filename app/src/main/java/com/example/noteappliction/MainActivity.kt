@@ -15,9 +15,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             NoteApplictionTheme {
-               // Scaffold( modifier = Modifier.fillMaxSize() ) { innerPadding ->
                     HomeScreen()
-                //}
             }
         }
     }
